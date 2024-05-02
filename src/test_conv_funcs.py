@@ -4,6 +4,7 @@ import conv_funcs
 from textnode import TextNode
 from leafnode import LeafNode
 from text_types import *
+from block_types import *
 
 class TestConvFuncs(unittest.TestCase):
     def test_text_node_to_html_node(self):
@@ -211,23 +212,120 @@ class TestConvFuncs(unittest.TestCase):
         assert test_markdown_blocks == assert_markdown_blocks
 
 
-    def test_handle_heading_block_type(markdown_block):
-        pass
-    
-    def test_handle_code_block_type(markdown_block):
-        pass
-    
-    def test_handle_quote_block_type(markdown_block):
-        pass
-    
-    def test_handle_unordered_list_block_type(markdown_block):
-        pass
-    
-    def test_handle_ordered_list_block_type(markdown_block):
-        pass
+    def test_handle_heading_block_type(self):
+        
+        markdown_block_heading_1 = "# here is a heading"
+
+        markdown_block_heading_6 = "###### here is a heading"
+
+        markdown_block_heading_7 = "####### here is not a heading"
 
 
+        test_block_type_valid_1 = conv_funcs.handle_heading_block_type(markdown_block_heading_1)
 
+        test_block_type_valid_6 = conv_funcs.handle_heading_block_type(markdown_block_heading_6)
+
+        test_block_type_invalid_7 = conv_funcs.handle_heading_block_type(markdown_block_heading_7)
+
+
+        assert test_block_type_valid_1 == block_type_heading
+
+        assert test_block_type_valid_6 == block_type_heading
+
+        assert test_block_type_invalid_7 == block_type_paragraph
+
+
+    
+    def test_handle_code_block_type(self):
+        
+        markdown_block_code = "```this is is a code block\nthere is code here\nhere is the end```"
+
+        markdown_block_code_invalid = "```this is is a code block\nthere is code here\nhere is the end"
+
+
+        test_block_type_valid = conv_funcs.handle_code_block_type(markdown_block_code)
+
+        test_block_type_invalid = conv_funcs.handle_code_block_type(markdown_block_code_invalid)
+
+
+        assert test_block_type_valid == block_type_code
+
+        assert test_block_type_invalid == block_type_paragraph
+
+
+    
+    def test_handle_quote_block_type(self):
+        
+        markdown_block_quote = ">this is a quot\n>there words\n>here is the end"
+
+        markdown_block_quote_invalid = ">this is a quot\n>there words\nhere is the end"
+
+        
+        test_block_type_valid = conv_funcs.handle_quote_block_type(markdown_block_quote)
+
+        test_block_type_invalid = conv_funcs.handle_quote_block_type(markdown_block_quote_invalid)
+
+
+        assert test_block_type_valid == block_type_quote
+
+        assert test_block_type_invalid == block_type_paragraph
+
+    
+    def test_handle_unordered_list_block_type(self):
+        
+        markdown_block_unordered_list = "* this is a list\n* there are items here\n- here is an item\n* here is the end"
+        
+        markdown_block_unordered_list_invalid = "* this is a list\nthere are items here\n- here is an item\n* here is the end"
+
+
+        test_block_type_valid = conv_funcs.handle_unordered_list_block_type(markdown_block_unordered_list)
+
+        test_block_type_invalid = conv_funcs.handle_unordered_list_block_type(markdown_block_unordered_list_invalid)
+
+
+        assert test_block_type_valid == block_type_unordered_list
+
+        assert test_block_type_invalid == block_type_paragraph
+
+
+    def test_handle_ordered_list_block_type(self):
+        
+        markdown_block_ordered_list = "1. this is a list\n2. there are items here\n3. here is the end"
+
+        markdown_block_ordered_list_invalid = "1. this is a list\n5. there are items here\n3. here is the end"
+
+        test_block_type_valid = conv_funcs.handle_ordered_list_block_type(markdown_block_ordered_list)
+
+        test_block_type_invalid = conv_funcs.handle_ordered_list_block_type(markdown_block_ordered_list_invalid)
+
+
+        assert test_block_type_valid == block_type_ordered_list
+
+        assert test_block_type_invalid == block_type_paragraph
+
+
+    def test_block_to_block_type(self):
+
+        markdown_block_heading = "### here is a heading"
+        markdown_block_code = "```this is is a code block\nthere is code here\nhere is the end```"
+        markdown_block_quote = ">this is a quot\n>there words\n>here is the end"
+        markdown_block_unordered_list = "* this is a list\n* there are items here\n- here is an item\n* here is the end"
+        markdown_block_ordered_list = "1. this is a list\n2. there are items here\n3. here is the end"
+        markdown_block_paragraph = "this is an invalid list\n2. there are items here\n3. here is the end"
+    
+        test_block_type_heading = conv_funcs.block_to_block_type(markdown_block_heading)
+        test_block_type_code = conv_funcs.block_to_block_type(markdown_block_code)
+        test_block_type_quote = conv_funcs.block_to_block_type(markdown_block_quote)
+        test_block_type_unordered_list = conv_funcs.block_to_block_type(markdown_block_unordered_list)
+        test_block_type_ordered_list = conv_funcs.block_to_block_type(markdown_block_ordered_list)
+        test_block_type_paragraph = conv_funcs.block_to_block_type(markdown_block_paragraph)
+
+        assert test_block_type_heading == block_type_heading
+        assert test_block_type_code == block_type_code
+        assert test_block_type_quote == block_type_quote
+        assert test_block_type_unordered_list == block_type_unordered_list
+        assert test_block_type_ordered_list == block_type_ordered_list
+        assert test_block_type_paragraph == block_type_paragraph
 
 
 if __name__ == "__main__":

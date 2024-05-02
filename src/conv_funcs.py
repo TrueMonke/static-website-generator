@@ -172,15 +172,21 @@ def handle_heading_block_type(markdown_block:str) -> str:
     heading_counter = 1
     
     if len(markdown_block) > 2:
+
         for character in markdown_block[1:]:
-            if heading_counter > 6:
-                if character == " ":
-                    return block_type_heading
-                else:
+
+            if heading_counter >= 6:
+                if character != " ":
                     return block_type_paragraph
                 
             if character == "#":
                 heading_counter+=1
+
+            elif character == " ":
+                return block_type_heading
+            
+            else:
+                return block_type_paragraph
 
     return block_type_paragraph
 
@@ -188,7 +194,8 @@ def handle_heading_block_type(markdown_block:str) -> str:
 def handle_code_block_type(markdown_block:str) -> str:
 
     if len(markdown_block) >= 6:
-        if markdown_block[0:2] == "```" and markdown_block[-1:-3] == "```":
+
+        if markdown_block[0:3] == "```" and markdown_block[-3:] == "```":
             return block_type_code
 
     return block_type_paragraph
@@ -211,7 +218,8 @@ def handle_unordered_list_block_type(markdown_block:str) -> str:
 
     for line in block_lines:
         if len(line) > 2:
-            if line[0:1] != "* " or "- ":
+            
+            if line[0:2] not in ["* ", "- "]:
                     return block_type_paragraph
             else:
                 continue
@@ -225,19 +233,25 @@ def handle_ordered_list_block_type(markdown_block:str) -> str:
 
     block_lines = markdown_block.split("\n")
 
+    previous_digit = 0
+
     for line in block_lines:
         if len(line) > 2:
-            if not line[0].isdigit() or line[1] != ".":
-                    return block_type_paragraph
+
+            expected_prefix = f"{previous_digit+1}."
+            current_prefix = f"{line[0:2]}"
+
+            if current_prefix != expected_prefix:
+                return block_type_paragraph
             else:
-                continue
+                previous_digit = int(line[0])
         else:
             return block_type_paragraph
     
     return block_type_ordered_list
 
 
-def block_to_block_type(markdown_block:str):
+def block_to_block_type(markdown_block:str) -> str:
 
     initial_block_character = markdown_block[0]
 
