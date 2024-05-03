@@ -25,7 +25,4 @@ class LeafNode(HTMLNode):
             else:
                 return f"<{self.tag}{self.props_to_html()}>{self.value}</{self.tag}>" 
         else:
-            if self.value == "":
-                print("LeafNode")
-                print(self)
             raise ValueError(f"LeafNode has no value: {self}")
