@@ -1,8 +1,10 @@
 import unittest
+import os
 
 import conv_funcs
 from textnode import TextNode
 from leafnode import LeafNode
+from parentnode import ParentNode
 from text_types import *
 from block_types import *
 
@@ -256,9 +258,9 @@ class TestConvFuncs(unittest.TestCase):
     
     def test_handle_quote_block_type(self):
         
-        markdown_block_quote = ">this is a quot\n>there words\n>here is the end"
+        markdown_block_quote = "> this is a quote\n> there words\n> here is the end"
 
-        markdown_block_quote_invalid = ">this is a quot\n>there words\nhere is the end"
+        markdown_block_quote_invalid = ">this is a quote\n>there words\nhere is the end"
 
         
         test_block_type_valid = conv_funcs.handle_quote_block_type(markdown_block_quote)
@@ -326,6 +328,121 @@ class TestConvFuncs(unittest.TestCase):
         assert test_block_type_unordered_list == block_type_unordered_list
         assert test_block_type_ordered_list == block_type_ordered_list
         assert test_block_type_paragraph == block_type_paragraph
+
+
+    def test_markdown_heading_to_html_node(self):
+        
+        markdown_heading = "### here is a heading"
+
+        test_html_heading_node = conv_funcs.markdown_heading_to_html_node(markdown_heading)
+
+        assert_html_heading_node = ParentNode("h3", [LeafNode(None, "here is a heading")])
+        
+        assert test_html_heading_node == assert_html_heading_node
+
+
+    def test_markdown_code_to_html_node(self):
+        
+        markdown_code = "```this is code```"
+
+        test_html_code_node = conv_funcs.markdown_code_to_html_node(markdown_code)
+
+        assert_html_code_node = ParentNode("pre", [LeafNode("code", "this is code", None)], None)
+        
+        assert test_html_code_node == assert_html_code_node
+
+
+    def test_markdown_quote_to_html_node(self):
+        
+        markdown_quote = "> this is a quote\n> there words\n> here is the end"
+
+        test_html_quote_node = conv_funcs.markdown_quote_to_html_node(markdown_quote)
+
+        assert_html_quote_node = ParentNode("blockquote", [LeafNode(None, "this is a quote\nthere words\nhere is the end")])
+        
+        assert test_html_quote_node == assert_html_quote_node
+
+
+    def test_markdown_unordered_list_to_html_node(self):
+        
+        markdown_unordered_list = "* this is a list\n* there are items here\n- here is an item\n* here is the end"
+
+        test_html_unordered_list_node = conv_funcs.markdown_unordered_list_to_html_node(markdown_unordered_list)
+
+        assert_html_unordered_list_node = ParentNode("ul", [
+            ParentNode("li", [LeafNode(None, "this is a list")]),
+            ParentNode("li", [LeafNode(None, "there are items here")]),
+            ParentNode("li", [LeafNode(None, "here is an item")]),
+            ParentNode("li", [LeafNode(None, "here is the end")]),
+            ])
+        
+        assert test_html_unordered_list_node == assert_html_unordered_list_node
+
+
+    def test_markdown_ordered_list_to_html_node(self):
+        
+        markdown_ordered_list = "1. this is a list\n2. there are items here\n3. here is the end"
+
+        test_html_ordered_list_node = conv_funcs.markdown_ordered_list_to_html_node(markdown_ordered_list)
+
+        assert_html_ordered_list_node = ParentNode("ol", [
+            ParentNode("li", [LeafNode(None, "this is a list")]),
+            ParentNode("li", [LeafNode(None, "there are items here")]),
+            ParentNode("li", [LeafNode(None, "here is the end")]),
+            ])
+        
+        assert test_html_ordered_list_node == assert_html_ordered_list_node
+
+
+    def test_markdown_paragraph_to_html_node(self):
+        
+        markdown_block_paragraph = "this is an invalid list\n2. there are items here\n3. here is the end"
+
+        test_html_paragraph_node = conv_funcs.markdown_paragraph_to_html_node(markdown_block_paragraph)
+
+        assert_html_paragraph_node = ParentNode("p", [LeafNode(None, "this is an invalid list\n2. there are items here\n3. here is the end")])
+        
+        assert test_html_paragraph_node == assert_html_paragraph_node
+
+
+    def test_markdown_to_html_node(self):
+
+        markdown_blocks = [
+            "### here is a heading",
+            "```this is is a code block\nthere is code here\nhere is the end```",
+            "> this is a quote\n> there words\n> here is the end",
+            "* this is a list\n* there are items here\n- here is an item\n* here is the end",
+            "1. this is a list\n2. there are items here\n3. here is the end",
+            "this is an invalid list\n2. there are items here\n3. here is the end"
+        ]
+
+        markdown_document = ""
+
+        for block in markdown_blocks:
+            markdown_document+=block+"\n\n"
+
+        test_html_node = conv_funcs.markdown_to_html_node(markdown_document)
+
+        assert_html_node = ParentNode("div", [
+            ParentNode("h3", [LeafNode(None, "here is a heading", None)], None),
+            ParentNode("pre", [LeafNode("code", "this is is a code block\nthere is code here\nhere is the end", None)], None),
+            ParentNode("blockquote", [LeafNode(None, "this is a quote\nthere words\nhere is the end", None)], None),
+            ParentNode("ul", [
+                ParentNode("li", [LeafNode(None, "this is a list", None)], None),
+                ParentNode("li", [LeafNode(None, "there are items here", None)], None),
+                ParentNode("li", [LeafNode(None, "here is an item", None)], None),
+                ParentNode("li", [LeafNode(None, "here is the end", None)], None)
+            ], None),
+            ParentNode("ol", [
+                ParentNode("li", [LeafNode(None, "this is a list", None)], None),
+                ParentNode("li", [LeafNode(None, "there are items here", None)], None),
+                ParentNode("li", [LeafNode(None, "here is the end", None)], None)
+            ], None),
+            ParentNode("p", [LeafNode(None, "this is an invalid list\n2. there are items here\n3. here is the end", None)], None)
+        ], None)
+
+
+        assert test_html_node == assert_html_node
 
 
 if __name__ == "__main__":

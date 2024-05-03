@@ -1,5 +1,6 @@
 from textnode import TextNode
 from htmlnode import HTMLNode
+from parentnode import ParentNode
 from leafnode import LeafNode
 from text_types import *
 from block_types import *
@@ -39,10 +40,11 @@ def split_nodes_delimiter(old_nodes:list[TextNode], delimiter:str, text_type:str
                 raise ValueError(f"No matching {delimiter} for {node}")
             else:
                 for i in range(len(new_text)):
-                    if i % 2 == 0:
-                        new_nodes.append(TextNode(new_text[i], node.text_type))
-                    else:
-                        new_nodes.append(TextNode(new_text[i], text_type))
+                    if new_text[i] != "":
+                        if i % 2 == 0:
+                            new_nodes.append(TextNode(new_text[i], node.text_type))
+                        else:
+                            new_nodes.append(TextNode(new_text[i], text_type))
 
     return new_nodes
 
@@ -159,7 +161,6 @@ def markdown_to_blocks(markdown_text:str) -> list[str]:
     for block in extracted_blocks:
 
         block = block.lstrip().rstrip()
-        # block = block.lstrip().rstrip() + "\n"
 
         if block:
             markdown_blocks.append(block)
@@ -271,3 +272,101 @@ def block_to_block_type(markdown_block:str) -> str:
                 return handle_ordered_list_block_type(markdown_block)
             else:
                 return block_type_paragraph
+
+
+def markdown_heading_to_html_node(markdown:str) -> HTMLNode:
+
+    header_type, header_content = markdown.split(" ", 1)
+
+    children = []
+
+    for node in text_to_textnodes(header_content):
+        children.append(text_node_to_html_node(node))
+
+    return ParentNode(f"h{len(header_type)}", children=children)
+
+
+def markdown_code_to_html_node(markdown:str) -> HTMLNode:
+
+    children = []
+    
+    code_block = markdown.replace("```", "").lstrip()
+
+    return ParentNode("pre", children=[LeafNode("code",value=code_block)])
+
+
+def markdown_quote_to_html_node(markdown:str) -> HTMLNode:
+
+    children = []
+
+    for node in text_to_textnodes(markdown.replace("> ", "")):
+        children.append(text_node_to_html_node(node))
+
+    return ParentNode("blockquote", children=children)
+
+
+def markdown_unordered_list_to_html_node(markdown:str) -> HTMLNode:
+    
+    children = []
+    
+    for list_item in markdown.split("\n"):
+        
+        list_item_children = []
+
+        for node in text_to_textnodes(list_item.replace("* ", "").replace("- ", "")):
+            list_item_children.append(text_node_to_html_node(node))
+
+        children.append(ParentNode("li", children = list_item_children))
+
+    return ParentNode("ul", children = children)
+
+
+def markdown_ordered_list_to_html_node(markdown:str) -> HTMLNode:
+
+    children = []
+    
+    for list_item in markdown.split("\n"):
+        
+        list_item_children = []
+
+        for node in text_to_textnodes(list_item.split(".", 1)[1].lstrip()):
+            list_item_children.append(text_node_to_html_node(node))
+
+        children.append(ParentNode("li", children = list_item_children))
+
+    return ParentNode("ol", children = children)
+
+
+def markdown_paragraph_to_html_node(markdown:str) -> HTMLNode:
+
+    children = []
+
+    for node in text_to_textnodes(markdown):
+        children.append(text_node_to_html_node(node))
+
+    return ParentNode("p", children=children)
+
+
+def markdown_to_html_node(markdown:str) -> HTMLNode:
+
+    markdown_blocks = markdown_to_blocks(markdown)
+
+    child_nodes = []
+
+    block_type_conversions = {
+        block_type_heading: markdown_heading_to_html_node,
+        block_type_code: markdown_code_to_html_node,
+        block_type_quote: markdown_quote_to_html_node,
+        block_type_unordered_list: markdown_unordered_list_to_html_node,
+        block_type_ordered_list: markdown_ordered_list_to_html_node,
+        block_type_paragraph: markdown_paragraph_to_html_node
+    }
+
+
+    for block in markdown_blocks:
+
+        child_nodes.append(block_type_conversions[block_to_block_type(block)](block))
+
+    complete_html_node = ParentNode("div", children = child_nodes)
+
+    return complete_html_node
