@@ -1,4 +1,3 @@
-from textnode import TextNode
 
 from conv_funcs import extract_title, markdown_to_html_node
 import os
