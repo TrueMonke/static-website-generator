@@ -380,9 +380,3 @@ def extract_title(markdown:str) -> str:
         return title
     else:
         raise ValueError("No Title Found in Markdown")
-
-
-def generate_page(from_path:str, template_path:str, dest_path:str) -> HTMLNode:
-
-    pass
-
