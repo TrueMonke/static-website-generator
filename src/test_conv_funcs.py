@@ -73,10 +73,33 @@ class TestConvFuncs(unittest.TestCase):
         assert extracted_images == assert_exracted_images
 
 
+    def test_extract_markdown_images_initial_text(self):
+        text = "![image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) \
+            and ![another](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/dfsdkjfd.png)"
+
+        extracted_images = conv_funcs.extract_markdown_images(text)
+
+        assert_exracted_images = [("image", "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png"),
+                                   ("another", "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/dfsdkjfd.png")]
+
+        assert extracted_images == assert_exracted_images
+
+
     def test_extract_markdown_links(self):
         text = "This is text with a [link](https://www.example.com), \
-             ![another](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/dfsdkjfd.png) \
-                and [another](https://www.example.com/another)"
+                ![another](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/dfsdkjfd.png) \
+                and [another](https://www.example.com/another), \
+                and here is another example [Back Home](/)"
+
+        extracted_links = conv_funcs.extract_markdown_links(text)
+
+        assert_exracted_links = [("link", "https://www.example.com"), ("another", "https://www.example.com/another"), ("Back Home", "/")]
+
+        assert extracted_links == assert_exracted_links
+
+
+    def test_extract_markdown_links_initial_text(self):
+        text = "[link](https://www.example.com), and [another](https://www.example.com/another)"
 
         extracted_links = conv_funcs.extract_markdown_links(text)
 
@@ -131,7 +154,7 @@ class TestConvFuncs(unittest.TestCase):
     def test_split_nodes_links(self):
 
         node = TextNode(
-            "This is text with a [link](https://www.example.com) and [another](https://www.example.com/another)",
+            "This is text with a [link](https://www.example.com) and [another](https://www.example.com/another) and here is another example [Back Home](/)",
             text_type_text,
         )
 
@@ -144,6 +167,8 @@ class TestConvFuncs(unittest.TestCase):
             TextNode(
                 "another", text_type_link, "https://www.example.com/another"
             ),
+            TextNode(" and here is another example ", text_type_text),
+            TextNode("Back Home", text_type_link, "/"),
         ]
 
         assert new_nodes == assert_html_nodes
@@ -166,6 +191,28 @@ class TestConvFuncs(unittest.TestCase):
                 "another", text_type_link, "https://www.example.com/another"
             ),
             TextNode(" tail text ", text_type_text),
+        ]
+
+        assert new_nodes == assert_html_nodes
+
+
+    def test_split_nodes_links_initial_text(self):
+
+        node = TextNode(
+            "[link](https://www.example.com) and [another](https://www.example.com/another)",
+            text_type_text,
+        )
+
+        new_nodes = conv_funcs.split_nodes_links([node])
+
+        print(f"\ntest_split_nodes_links_initial_text :\n{new_nodes}")
+
+        assert_html_nodes = [
+            TextNode("link", text_type_link, "https://www.example.com"),
+            TextNode(" and ", text_type_text),
+            TextNode(
+                "another", text_type_link, "https://www.example.com/another"
+            )
         ]
 
         assert new_nodes == assert_html_nodes
@@ -443,6 +490,16 @@ class TestConvFuncs(unittest.TestCase):
 
 
         assert test_html_node == assert_html_node
+
+
+    def test_extract_title(self):
+
+        markdown_content = "# this is the header \n1. this is a list\n2. there are items here\n3. here is the end"
+
+        test_title = conv_funcs.extract_title(markdown_content)
+        assert_title = "this is the header "
+        
+        assert test_title == assert_title
 
 
 if __name__ == "__main__":

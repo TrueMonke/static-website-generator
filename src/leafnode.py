@@ -19,7 +19,7 @@ class LeafNode(HTMLNode):
 
 
     def to_html(self):
-        if self.value:
+        if self.value is not None:
             if not self.tag:
                 return f"{self.value}" 
             else:

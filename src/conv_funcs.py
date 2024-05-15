@@ -52,7 +52,7 @@ def split_nodes_delimiter(old_nodes:list[TextNode], delimiter:str, text_type:str
 def extract_markdown_images(input_text:str) -> list[tuple[str]]:
     
     extracted_images = []
-    markdown_images_pattern = r'\!\[([^\]]+)\]\((https?:\/\/[^\s\)]+)\)'
+    markdown_images_pattern = r"(?<=!)\[(.*?)\]\((.*?)\)"
     extracted_images = re.findall(markdown_images_pattern, input_text)
 
     return extracted_images
@@ -61,7 +61,7 @@ def extract_markdown_images(input_text:str) -> list[tuple[str]]:
 def extract_markdown_links(input_text:str) -> list[tuple[str]]:
 
     extracted_links = []
-    markdown_links_pattern = r'(?:^|\s)(?<!\!)\[([^\]]+)\]\((https?:\/\/[^\s\)]+)\)'
+    markdown_links_pattern =r"(?<!!)\[(.*?)\]\((.*?)\)"
     extracted_links = re.findall(markdown_links_pattern, input_text)
 
     return extracted_links
@@ -75,25 +75,26 @@ def split_nodes_images(old_nodes:list[TextNode]) -> list[TextNode]:
         if node.text_type != text_type_text:
             new_nodes.append(node)
         else:
-            extract_links = extract_markdown_images(node.text)
+            extract_images = extract_markdown_images(node.text)
 
             node_text = node.text
 
-            for (alt, image) in extract_links:
+            for (alt, image) in extract_images:
 
                 delimiter = f"![{alt}]({image})"
-                new_text = node_text.split(delimiter, 1)
 
-                if new_text[0] != "" or new_text[0] != " ":
 
-                    new_nodes.append(TextNode(new_text[0], text_type_text))
-                    new_nodes.append(TextNode(alt, text_type_image, image))
-                    node_text = node_text.replace(new_text[0], "")
-                    node_text = node_text.replace(delimiter, "")
-                    
-                else:
-                    new_nodes.append(TextNode(alt, text_type_image, image))
-                    node_text = node_text.replace(delimiter, "")
+                split_node_text = node_text.split(delimiter, 1)
+
+                if split_node_text[0].rstrip():
+                    split_text = node_text.split(split_node_text[0], 1)
+
+                    node_text = split_text[1]
+
+                    new_nodes.append(TextNode(split_node_text.pop(0), text_type_text))
+                
+                new_nodes.append(TextNode(alt, text_type_image, image))
+                node_text = node_text.replace(delimiter, "")
 
             if node_text.rstrip():
                 new_nodes.append(TextNode(node_text, text_type_text))
@@ -109,28 +110,30 @@ def split_nodes_links(old_nodes:list[TextNode]) -> list[TextNode]:
         if node.text_type != text_type_text:
             new_nodes.append(node)
         else:
+
             extract_links = extract_markdown_links(node.text)
 
             node_text = node.text
 
             for (alt, link) in extract_links:
-
+                
                 delimiter = f"[{alt}]({link})"
-                new_text = node_text.split(delimiter, 1)
 
-                if new_text[0] != "" or new_text[0] != " ":
+                split_node_text = node_text.split(delimiter, 1)
 
-                    new_nodes.append(TextNode(new_text[0], text_type_text))
-                    new_nodes.append(TextNode(alt, text_type_link, link))
-                    node_text = node_text.replace(new_text[0], "")
-                    node_text = node_text.replace(delimiter, "")
+                if split_node_text[0].rstrip():
+                    split_text = node_text.split(split_node_text[0], 1)
+
+                    node_text = split_text[1]
                     
-                else:
-                    new_nodes.append(TextNode(alt, text_type_link, link))
-                    node_text = node_text.replace(delimiter, "")
+                    new_nodes.append(TextNode(split_node_text.pop(0), text_type_text))
+                
+                new_nodes.append(TextNode(alt, text_type_link, link))
+                node_text = node_text.replace(delimiter, "")
 
             if node_text.rstrip():
                 new_nodes.append(TextNode(node_text, text_type_text))
+
 
     return new_nodes
 
@@ -288,8 +291,6 @@ def markdown_heading_to_html_node(markdown:str) -> HTMLNode:
 
 def markdown_code_to_html_node(markdown:str) -> HTMLNode:
 
-    children = []
-    
     code_block = markdown.replace("```", "").lstrip()
 
     return ParentNode("pre", children=[LeafNode("code",value=code_block)])
@@ -370,3 +371,18 @@ def markdown_to_html_node(markdown:str) -> HTMLNode:
     complete_html_node = ParentNode("div", children = child_nodes)
 
     return complete_html_node
+
+
+def extract_title(markdown:str) -> str:
+
+    title = markdown.split("# ", 1)[1].split("\n", 1)[0]
+    if title:
+        return title
+    else:
+        raise ValueError("No Title Found in Markdown")
+
+
+def generate_page(from_path:str, template_path:str, dest_path:str) -> HTMLNode:
+
+    pass
+

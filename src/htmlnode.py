@@ -28,7 +28,6 @@ class HTMLNode:
         if self.props:
 
             for key,value in self.props.items():
-                # props_html_str+=f" {key}={value}"
                 props_html_str += f" {key}=\"{value}\""
 
 

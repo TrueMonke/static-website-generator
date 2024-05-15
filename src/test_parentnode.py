@@ -59,10 +59,6 @@ class TestParentNode(unittest.TestCase):
 
         assert_nested_node_to_html = '<p><b>Bold text</b><b>this is a nested leaf node</b><i>italic text</i>Normal text</p>'
 
-        print("")
-        print(test_nested_node_to_html)
-        print(assert_nested_node_to_html)
-
         assert test_nested_node_to_html == assert_nested_node_to_html
 
 
