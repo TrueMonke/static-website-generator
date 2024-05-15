@@ -4,10 +4,10 @@
 
 Allows you to create static sites by writing them in markdown rather than HTML.
 
-Creates a public directory and copies over the content directory contents over. 
-Converts any markdown files `.md` into HTML files `.html` when copying files.
+Creates a public directory and copies over the content directory files over. 
+Converts any markdown files `.md` into HTML files `.html` when copying.
 
-project idea is from the boot.dev Guided Project lesson `static site generator` which can be found at:
+Project idea is from the boot.dev guided project lesson `static site generator` which can be found at:
 
 https://www.boot.dev/learn/build-static-site-generator
 
