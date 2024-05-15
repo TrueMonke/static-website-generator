@@ -205,8 +205,6 @@ class TestConvFuncs(unittest.TestCase):
 
         new_nodes = conv_funcs.split_nodes_links([node])
 
-        print(f"\ntest_split_nodes_links_initial_text :\n{new_nodes}")
-
         assert_html_nodes = [
             TextNode("link", text_type_link, "https://www.example.com"),
             TextNode(" and ", text_type_text),
