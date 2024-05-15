@@ -81,7 +81,7 @@ def generate_html_files(input_dir, output_dir):
 
 if __name__ == "__main__":
     
-    static_dir = "./static"
+    static_dir = "./content"
     public_dir = "./public"
 
     print("\n------------------------------\n")
