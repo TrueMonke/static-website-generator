@@ -14,5 +14,7 @@ https://www.boot.dev/learn/build-static-site-generator
 ## How to use
 
 1. place required static site files into the content directory, including markdown files to be converted
-2. run main.sh to generate the public directory based on the content directory
-3. run start_server.sh to launch a simple http server and see the results
+2. use `make run` to generate the public directory based on the content directory
+3. use `make start-server` to launch a simple http server and see the results
+
+alternatively, `make all` will do both

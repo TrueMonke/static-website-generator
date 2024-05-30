@@ -1,5 +1,4 @@
-
-from conv_funcs import extract_title, markdown_to_html_node
+from src.conv_funcs import extract_title, markdown_to_html_node
 import os
 import shutil
 
@@ -7,7 +6,7 @@ import shutil
 def extract_file_contents(file_path):
 
     try:
-        with open(file_path, 'r') as file:
+        with open(file_path, "r") as file:
             file_contents = file.read()
 
             return file_contents
@@ -18,7 +17,7 @@ def extract_file_contents(file_path):
         print("An error occurred while reading the file")
 
 
-def generate_page(input_path:str, template_path:str, output_path:str) -> None:
+def generate_page(input_path: str, template_path: str, output_path: str) -> None:
 
     template_contents = extract_file_contents(template_path)
     markdown_contents = extract_file_contents(input_path)
@@ -27,10 +26,12 @@ def generate_page(input_path:str, template_path:str, output_path:str) -> None:
 
     html_node = markdown_to_html_node(markdown_contents)
 
-    html_contents = template_contents.replace("{{ Title }}", html_header).replace("{{ Content }}", html_node.to_html())
+    html_contents = template_contents.replace("{{ Title }}", html_header).replace(
+        "{{ Content }}", html_node.to_html()
+    )
 
     try:
-        with open(output_path, 'w') as file:
+        with open(output_path, "w") as file:
 
             file.write(html_contents)
 
@@ -49,7 +50,7 @@ def generate_html_files(input_dir, output_dir):
         entries = os.listdir(input_dir)
 
         for entry in entries:
-            
+
             input_path = f"{input_dir}/{entry}"
             output_path = f"{output_dir}/{entry}"
 
@@ -59,7 +60,7 @@ def generate_html_files(input_dir, output_dir):
                 if input_path[-3:] == ".md":
 
                     output_path = output_path.replace(".md", ".html")
-                    
+
                     generate_page(input_path, template_path, output_path)
                     print(f"Output Entry Path: {output_path}")
 
@@ -71,7 +72,6 @@ def generate_html_files(input_dir, output_dir):
                 os.mkdir(output_path)
                 generate_html_files(input_path, output_path)
 
-
     except FileNotFoundError:
         print("The directory does not exist")
     except PermissionError:
@@ -79,7 +79,7 @@ def generate_html_files(input_dir, output_dir):
 
 
 if __name__ == "__main__":
-    
+
     static_dir = "./content"
     public_dir = "./public"
 

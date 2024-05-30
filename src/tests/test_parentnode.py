@@ -1,11 +1,14 @@
 import unittest
 
-from parentnode import ParentNode
-from leafnode import LeafNode
+from src.parentnode import ParentNode
+from src.leafnode import LeafNode
+
 
 class TestParentNode(unittest.TestCase):
     def test_creation(self):
-        node1 = ParentNode("p", "This is a parent node", [LeafNode(None, "this is a leaf node")])
+        node1 = ParentNode(
+            "p", "This is a parent node", [LeafNode(None, "this is a leaf node")]
+        )
         node2 = ParentNode(
             "p",
             [
@@ -20,10 +23,13 @@ class TestParentNode(unittest.TestCase):
         assert isinstance(node2, ParentNode)
 
     def test_eq(self):
-        node = ParentNode("p", "This is a parent node", [LeafNode(None, "this is a leaf node")])
-        node2 = ParentNode("p", "This is a parent node", [LeafNode(None, "this is a leaf node")])
+        node = ParentNode(
+            "p", "This is a parent node", [LeafNode(None, "this is a leaf node")]
+        )
+        node2 = ParentNode(
+            "p", "This is a parent node", [LeafNode(None, "this is a leaf node")]
+        )
         self.assertEqual(node, node2)
-
 
     def test_to_html(self):
         node = ParentNode(
@@ -38,18 +44,21 @@ class TestParentNode(unittest.TestCase):
 
         test_node_to_html = node.to_html()
 
-        assert_node_to_html = '<p><b>Bold text</b>Normal text<i>italic text</i>Normal text</p>'
+        assert_node_to_html = (
+            "<p><b>Bold text</b>Normal text<i>italic text</i>Normal text</p>"
+        )
 
         assert test_node_to_html == assert_node_to_html
-
 
     def test_nested_to_html(self):
         node = ParentNode(
             "p",
             [
                 LeafNode("b", "Bold text"),
-                ParentNode("b", [LeafNode(None, "this is a"),
-                                 LeafNode(None, " nested leaf node")]),
+                ParentNode(
+                    "b",
+                    [LeafNode(None, "this is a"), LeafNode(None, " nested leaf node")],
+                ),
                 LeafNode("i", "italic text"),
                 LeafNode(None, "Normal text"),
             ],
@@ -57,18 +66,19 @@ class TestParentNode(unittest.TestCase):
 
         test_nested_node_to_html = node.to_html()
 
-        assert_nested_node_to_html = '<p><b>Bold text</b><b>this is a nested leaf node</b><i>italic text</i>Normal text</p>'
+        assert_nested_node_to_html = "<p><b>Bold text</b><b>this is a nested leaf node</b><i>italic text</i>Normal text</p>"
 
         assert test_nested_node_to_html == assert_nested_node_to_html
 
-
-    def test_nested_to_html(self):
+    def test_nested_to_html_paragraph_node(self):
         node = ParentNode(
             "p",
             [
                 LeafNode("b", "Bold text"),
-                ParentNode("p", [LeafNode(None, "this is a"),
-                                 LeafNode(None, " nested leaf node")]),
+                ParentNode(
+                    "p",
+                    [LeafNode(None, "this is a"), LeafNode(None, " nested leaf node")],
+                ),
                 LeafNode("i", "italic text"),
                 LeafNode(None, "Normal text"),
             ],
